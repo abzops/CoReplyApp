@@ -1,18 +1,12 @@
 workflows:
   development-build:
-    name: Development Build
+    name: Unsigned Development Build
     max_build_duration: 60
     instance_type: mac_mini_m2
-    integrations:
-      app_store_connect: codemagic_api_key
     environment:
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.abhinand.coreply
       vars:
         XCODE_SCHEME: "CoReplyApp"
         XCODE_PROJECT: "CoReply.xcodeproj"
-        BUNDLE_ID: "com.abhinand.coreply"
       xcode: latest
       cocoapods: default
     scripts:
@@ -29,32 +23,30 @@ workflows:
           xcodebuild -resolvePackageDependencies \
             -scheme $XCODE_SCHEME \
             -project $XCODE_PROJECT
-      - name: Set up code signing
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files $BUNDLE_ID \
-            --platform IOS \
-            --type IOS_APP_DEVELOPMENT \
-            --create
-          keychain add-certificates
-          xcode-project use-profiles
-      - name: Build development IPA
+      - name: Build and Archive (No signing)
         script: |
           cd $CM_BUILD_DIR/CoReply
           xcodebuild archive \
             -scheme $XCODE_SCHEME \
             -project $XCODE_PROJECT \
             -destination 'generic/platform=iOS' \
-            -archivePath ./build/CoReply-dev.xcarchive \
-            -configuration Debug \
-            | xcpretty
-          xcodebuild -exportArchive \
-            -archivePath ./build/CoReply-dev.xcarchive \
-            -exportOptionsPlist ./ExportOptions-dev.plist \
-            -exportPath ./build/dev-ipa
+            -archivePath ./build/CoReply.xcarchive \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            EXPANDED_CODE_SIGN_IDENTITY=""
+      - name: Package Unsigned IPA
+        script: |
+          cd $CM_BUILD_DIR/CoReply
+          mkdir -p build/ipa
+          cp -r build/CoReply.xcarchive/Products/Applications/CoReplyApp.app build/ipa/
+          cd build/ipa
+          mkdir -p Payload
+          mv CoReplyApp.app Payload/
+          zip -r CoReply-unsigned.ipa Payload/
+          mv CoReply-unsigned.ipa ../
     artifacts:
-      - CoReply/build/dev-ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+      - CoReply/build/CoReply-unsigned.ipa
     publishing:
       email:
         recipients:
