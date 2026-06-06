@@ -22,7 +22,9 @@ jobs:
         run: xcodebuild -version
 
       - name: Download iOS Platform SDK
-        run: sudo xcodebuild -downloadPlatform iOS
+        run: |
+          xcrun simctl list devices available || true
+          sudo xcodebuild -downloadPlatform iOS
 
       - name: Install XcodeGen
         run: brew install xcodegen
