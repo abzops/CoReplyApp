@@ -341,7 +341,8 @@ some concise, some more expressive — but all must be significantly better than
 
     private func relationshipDescription(_ type: RelationshipType) -> String {
         switch type {
-        case .romantic:       return "romantic partner"
+        case .girlfriend:     return "girlfriend"
+        case .boyfriend:      return "boyfriend"
         case .crush:          return "crush / someone they like"
         case .friend:         return "close friend"
         case .bestFriend:     return "best friend"
