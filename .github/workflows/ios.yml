@@ -1,0 +1,89 @@
+name: Build CoReply iOS
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+        working-directory: CoReply
+
+      - name: Resolve Swift Package Manager dependencies
+        run: |
+          cd CoReply
+          xcodebuild -resolvePackageDependencies \
+            -scheme CoReplyApp \
+            -project CoReply.xcodeproj
+
+      - name: Build (No signing)
+        run: |
+          cd CoReply
+          xcodebuild build \
+            -scheme CoReplyApp \
+            -project CoReply.xcodeproj \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            | xcpretty || true
+
+      - name: Archive app
+        run: |
+          cd CoReply
+          xcodebuild archive \
+            -scheme CoReplyApp \
+            -project CoReply.xcodeproj \
+            -destination 'generic/platform=iOS' \
+            -archivePath ./build/CoReply.xcarchive \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            | xcpretty || true
+
+      - name: Export unsigned IPA
+        run: |
+          cd CoReply
+          mkdir -p build/ipa
+          cp -r build/CoReply.xcarchive/Products/Applications/CoReplyApp.app build/ipa/
+          cd build/ipa
+          mkdir -p Payload
+          mv CoReplyApp.app Payload/
+          zip -r CoReply-unsigned.ipa Payload/
+          mv CoReply-unsigned.ipa ../
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoReply-unsigned-IPA
+          path: CoReply/build/CoReply-unsigned.ipa
+          retention-days: 30
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: CoReply/build/
+          retention-days: 7
