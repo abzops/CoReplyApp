@@ -157,9 +157,11 @@ public final class KeyboardViewModel: ObservableObject {
             checkLimit()
             
             // Log to remote db asynchronously
+            #if !KEYBOARD_EXTENSION
             Task {
                 await SupabaseService.shared.logGeneration(message: clipboardText, replies: result, profileID: profile.id)
             }
+            #endif
         } catch {
             self.error = error.localizedDescription
         }
@@ -186,7 +188,9 @@ public final class KeyboardViewModel: ObservableObject {
             ConversationMemoryStore.shared.addEntry(sourceText: source, selectedReply: reply.text, style: style, profileID: pID)
             
             // Sync selection to backend db
+            #if !KEYBOARD_EXTENSION
             await SupabaseService.shared.logReplySelection(replyID: reply.id)
+            #endif
         }
         
         // Triggers brief selection animation or sound if needed

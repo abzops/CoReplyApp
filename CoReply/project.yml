@@ -82,6 +82,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: KEYBOARD_EXTENSION
     entitlements:
       path: CoReplyKeyboard/CoReplyKeyboard.entitlements
     info:

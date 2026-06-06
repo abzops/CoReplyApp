@@ -1,7 +1,7 @@
-// Constants.swift
+// DesignConstants.swift
 // CoReply
 //
-// Application-wide styling variables, spacing tokens, and color themes.
+// Application-wide styling variables, spacing tokens, and color themes shared across targets.
 
 import SwiftUI
 

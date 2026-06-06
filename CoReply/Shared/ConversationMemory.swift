@@ -1,7 +1,7 @@
 // ConversationMemory.swift
 // CoReply
 //
-// Persistent tracking of generated replies, style choices, and selected outputs.
+// Persistent tracking of generated replies, style choices, and selected outputs shared across targets.
 
 import Foundation
 
@@ -41,7 +41,7 @@ public final class ConversationMemoryStore: ObservableObject {
     
     public func loadEntries() {
         guard let suite = UserDefaults(suiteName: AppConstants.appGroupID),
-              let data = suite.data(forKey: storageKey) else {
+               let data = suite.data(forKey: storageKey) else {
             return
         }
         
@@ -85,7 +85,9 @@ public final class ConversationMemoryStore: ObservableObject {
         objectWillChange.send()
         
         // Also trigger personality engine auto-learn
+        #if !KEYBOARD_EXTENSION
         PersonalityStore.shared.recordReplySelection(style: style, text: selectedReply)
+        #endif
     }
     
     public func entriesFor(profileID: UUID?) -> [ConversationMemoryEntry] {
