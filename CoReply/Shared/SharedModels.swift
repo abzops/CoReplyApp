@@ -235,7 +235,7 @@ public struct CoUser: Codable, Identifiable, Sendable {
         self.createdAt = createdAt
     }
     
-    public enum AgeRange: String, Codable, CaseIterable {
+    public enum AgeRange: String, Codable, CaseIterable, Sendable {
         case teen = "13-17"
         case youngAdult = "18-24"
         case adult = "25-34"
@@ -265,7 +265,7 @@ public struct CoUser: Codable, Identifiable, Sendable {
         }
     }
     
-    public enum Language: String, Codable, CaseIterable {
+    public enum Language: String, Codable, CaseIterable, Sendable {
         case english = "English"
         case malayalam = "Malayalam"
         case manglish = "Manglish"
@@ -292,7 +292,7 @@ public struct CoUser: Codable, Identifiable, Sendable {
         }
     }
     
-    public enum CommunicationStyle: String, Codable, CaseIterable {
+    public enum CommunicationStyle: String, Codable, CaseIterable, Sendable {
         case formal = "Formal"
         case casual = "Casual"
         case humorous = "Humorous"
