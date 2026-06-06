@@ -38,6 +38,7 @@ jobs:
       - name: Build (No signing)
         run: |
           cd CoReply
+          set -o pipefail
           xcodebuild build \
             -scheme CoReplyApp \
             -project CoReply.xcodeproj \
@@ -46,11 +47,12 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             EXPANDED_CODE_SIGN_IDENTITY="" \
-            | xcpretty || true
+            | xcpretty
 
       - name: Archive app
         run: |
           cd CoReply
+          set -o pipefail
           xcodebuild archive \
             -scheme CoReplyApp \
             -project CoReply.xcodeproj \
@@ -60,7 +62,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             EXPANDED_CODE_SIGN_IDENTITY="" \
-            | xcpretty || true
+            | xcpretty
 
       - name: Export unsigned IPA
         run: |
